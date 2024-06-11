@@ -28,10 +28,11 @@ if not email or not password:
     raise ValueError("Environment variables MYCODE_EMAIL and MYCODE_PASSWORD must be set")
 
 # Input credentials into the form fields
-username = driver.find_element(By.NAME, "email")
-password = driver.find_element(By.NAME, "pwd")
-username.send_keys(email)
-password.send_keys(password)
+el_username = driver.find_element(By.NAME, "email")
+el_password = driver.find_element(By.NAME, "pwd")
+
+el_username.send_keys(email)
+el_password.send_keys(password)
 
 # Click the login button (adjust selector as needed)
 login_button = driver.find_element(By.XPATH, '//button[@id="btn-login"]')
@@ -60,8 +61,9 @@ os.makedirs(image_dir, exist_ok=True)
 
 # Initialize URL queue and visited set for crawling
 base_url = "https://mycode.jp/"
+start_url = "https://mycode.jp/my.html"
 visited_urls = set()
-url_queue = deque([base_url])
+url_queue = deque([start_url])
 
 ignore_query_keys = ["int", "redirectUrl", "%3Factive_tab_data%3Dfactor-advice"]
 # Crawl and save pages recursively
@@ -82,7 +84,7 @@ while url_queue:
             path = 'index'
         if query:
             return f"{path.removesuffix('.html')}.{query}.html"
-        return f"{path}"
+        return f"{path.removesuffix('.html')}.html"
 
     # Retrieve and save the page source
     page_source = driver.page_source
@@ -98,7 +100,8 @@ while url_queue:
         img_url = urljoin(base_url, img_url)
         img_name = os.path.basename(urlparse(img_url).path)
         img_path = os.path.join(image_dir, img_name)
-
+        if not img_name or len(img_name) == 0:
+            continue
         # Download the image
         try:
             img_response = requests.get(img_url)
@@ -124,7 +127,7 @@ while url_queue:
             continue
         parsed_url = urlparse(link_url)
         query_items = parse_qs(parsed_url.query)
-        filtered_query_items = {k: v for k, v in query_items.items if k not in ignore_query_keys}
+        filtered_query_items = {k: v for k, v in query_items.items() if k not in ignore_query_keys}
         filtered_query = urlencode(filtered_query_items, doseq=True)
         clean_url = parsed_url._replace(fragment='', query=filtered_query).geturl()
         if clean_url and base_url in clean_url and clean_url not in visited_urls:
