@@ -1,5 +1,6 @@
 """
-The provided Python script is a web crawler that uses Selenium WebDriver and the requests library to automate the process of logging into a website, crawling its pages, and downloading content such as HTML and images. Here's a breakdown of its functionality:
+The provided Python script is a web crawler that uses Selenium WebDriver and the requests library to automate the process of logging into a website,
+ crawling its pages, and downloading content such as HTML and images. 
 """
 import os
 import time
